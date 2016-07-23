@@ -1,0 +1,7 @@
+version: '2'
+services:
+  bot:
+    build: .
+    ports:
+      - "5000:5000"
+    command: python pokeslack.py -H 0.0.0.0 -u <USERNAME> -p <PASSWORD> -l "<LOCATION>" -st 1 -r <DISTANCE_IN_METERS> -sw "</services/your/slack_webhook/urlpath>"
