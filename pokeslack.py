@@ -131,6 +131,56 @@ def lonlat_to_meters(lat1, lon1, lat2, lon2):
     m = 6378100 * c
     return m
 
+def bearing_degrees(lat1, lon1, lat2, lon2):
+    """
+    Convert location in bearing degrees to be able to give a direction of where the Pokemon is located.
+    :param lat1: user location latitude
+    :param lon1: user location longitude
+    :param lat2: pokemon location latitude
+    :param lon2: pokemon location longitude
+    :return: bearing degrees
+    """
+
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # calculate the angle
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    x = math.sin(dlon) * math.cos(lat2)
+    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+    initial_bearing = math.atan2(x, y)
+    initial_bearing = math.degrees(initial_bearing)
+    bearing = (initial_bearing + 360) % 360
+    bearing = int(bearing)
+    return bearing
+
+def bearing_degrees_to_compass_direction(bearing):
+    """
+    Converts bearing degrees in easy to read North-East-West-South direction
+    :param bearing: bearing in degrees
+    :return: North, Northeast, East, etc
+    """
+    if bearing >= 0 and bearing < 23:
+        direction = 'north'
+    elif bearing >= 23 and bearing < 68:
+        direction = 'northeast'
+    elif bearing >= 68 and bearing < 113:
+        direction = 'east'
+    elif bearing >= 113 and bearing < 158:
+        direction = 'southeast'
+    elif bearing >= 158 and bearing < 203:
+        direction = 'south'
+    elif bearing >= 203 and bearing < 248:
+        direction = 'southwest'
+    elif bearing >= 248 and bearing < 293:
+        direction = 'west'
+    elif bearing >= 293 and bearing < 338:
+        direction = 'northwest'
+    elif bearing >= 338 and bearing <= 360:
+        direction = 'north'
+    return direction
+
+
 def encode(cellid):
     output = []
     encoder._VarintEncoder()(output.append, cellid)
@@ -772,15 +822,22 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                 disappear_seconds = str(0) + disappear_seconds
             disappear_time = disappear_datetime.strftime("%H:%M:%S")
 
+            # calculate direction of Pokemon in bearing degrees
+            direction = bearing_degrees(origin_lat, origin_lon, poke.Latitude, poke.Longitude)
+            # transform in compass direction
+            direction = bearing_degrees_to_compass_direction(direction)
+
             alert_text = 'I\'m just <https://pokevision.com/#/@' + str(poke.Latitude) + ',' + str(poke.Longitude) + \
                          '|' + "{0:.2f}".format(distance) + \
-                        ' m> away until ' + disappear_time + \
-                        ' (' + disappear_minutes + ':' + disappear_seconds + ')!'
+                         ' m> ' + direction + ' until ' + disappear_time + \
+                         ' (' + disappear_minutes + ':' + disappear_seconds + ')!'
 
             if pokemon_icons_prefix != ':pokeball:':
                 user_icon = pokemon_icons_prefix + pokename.lower() + ':'
             else:
                 user_icon = ':pokeball:'
+
+
 
             send_to_slack(alert_text, pokename, user_icon, slack_webhook_urlpath)
 
@@ -988,7 +1045,7 @@ def get_map():
         lat=origin_lat,
         lng=origin_lon,
         markers=get_pokemarkers(),
-        zoom='15', )
+        zoom='17', )
     return fullmap
 
 
