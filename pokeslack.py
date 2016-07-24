@@ -7,6 +7,7 @@ from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 from flask_googlemaps import icons
 import os
+import codecs
 import re
 import sys
 import struct
@@ -505,10 +506,14 @@ def get_token(service, username, password):
         return global_token
 
 def send_to_slack(text, username, icon_emoji, webhook):
-    data = urllib.urlencode({'payload': '{"username": "' + username + '", '
+    values = {'payload': '{"username": "' + username + '", '
                                         '"icon_emoji": "' + icon_emoji + '", '
                                         '"text": "' + text + '"}'
-                             })
+                             }
+    str_values = {}
+    for k, v in values.items():
+        str_values[k] = unicode(v).encode('utf-8')
+    data = urllib.urlencode(str_values)
 
     h = httplib.HTTPSConnection('hooks.slack.com')
     headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
@@ -651,7 +656,7 @@ def main():
 
     print('[+] Locale is ' + args.locale)
     pokemonsJSON = json.load(
-        open(path + '/locales/pokemon.' + args.locale + '.json'))
+        codecs.open(path + '/locales/pokemon.' + args.locale + '.json', "r", 'UTF-8'))
 
     if args.debug:
         global DEBUG
