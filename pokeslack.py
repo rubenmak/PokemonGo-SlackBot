@@ -505,6 +505,8 @@ def get_token(service, username, password):
         return global_token
 
 def send_to_slack(text, username, icon_emoji, webhook):
+    if isinstance(username, unicode):
+        username = username.encode('utf-8')
     data = urllib.urlencode({'payload': '{"username": "' + username + '", '
                                         '"icon_emoji": "' + icon_emoji + '", '
                                         '"text": "' + text + '"}'
