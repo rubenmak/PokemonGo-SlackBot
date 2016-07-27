@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2737b880-c580-4628-a525-ea2a60fe97cc" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pokeslack.py" afterPath="$PROJECT_DIR$/pokeslack.py" />
     </list>
     <ignored path="PokemonGo-SlackBot.iws" />
@@ -26,8 +25,8 @@
       <file leaf-file-name="pokeslack.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pokeslack.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="708" column="66" selection-start-line="708" selection-start-column="66" selection-end-line="708" selection-end-column="66" />
+            <state relative-caret-position="389">
+              <caret line="630" column="13" selection-start-line="630" selection-start-column="13" selection-end-line="630" selection-end-column="13" />
               <folding>
                 <element signature="e#43#55#0" expanded="true" />
               </folding>
@@ -136,7 +135,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../bht___pymctesting___shared" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
@@ -392,8 +391,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pokeslack.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="708" column="66" selection-start-line="708" selection-start-column="66" selection-end-line="708" selection-end-column="66" />
+        <state relative-caret-position="389">
+          <caret line="630" column="13" selection-start-line="630" selection-start-column="13" selection-end-line="630" selection-end-column="13" />
           <folding>
             <element signature="e#43#55#0" expanded="true" />
           </folding>

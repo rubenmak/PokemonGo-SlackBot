@@ -24,7 +24,7 @@ import urllib
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from geopy.geocoders import GoogleV3
 from gpsoauth import perform_master_login, perform_oauth
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
@@ -33,7 +33,6 @@ from requests.adapters import ConnectionError
 from requests.models import InvalidURL
 from transform import *
 from math import radians, cos, sin, asin, sqrt
-
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -84,21 +83,49 @@ origin_lat, origin_lon = None, None
 is_ampm_clock = False
 
 spotted_pokemon = {}
+max_idle_time = timedelta(seconds=300)
+api_last_response = datetime.now() - 2 * max_idle_time
+wait_to_reconnect = 60
 
 # stuff for in-background search thread
 
 search_thread = None
 
-def memoize(obj):
-    cache = obj.cache = {}
 
-    @functools.wraps(obj)
-    def memoizer(*args, **kwargs):
-        key = str(args) + str(kwargs)
-        if key not in cache:
-            cache[key] = obj(*args, **kwargs)
-        return cache[key]
-    return memoizer
+class memoized(object):
+    """Decorator that caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned, and
+    not re-evaluated.
+    """
+
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+
+    def __call__(self, *args):
+        try:
+            return self.cache[args]
+        except KeyError:
+            value = self.func(*args)
+            self.cache[args] = value
+            return value
+        except TypeError:
+            # uncachable -- for instance, passing a list as an argument.
+            # Better to not cache than to blow up entirely.
+            return self.func(*args)
+
+    def __repr__(self):
+        """Return the function's docstring."""
+        return self.func.__doc__
+
+    def __get__(self, obj, objtype):
+        """Support instance methods."""
+        fn = functools.partial(self.__call__, obj)
+        fn.reset = self._reset
+        return fn
+
+    def _reset(self):
+        self.cache = {}
 
 def parse_unicode(bytestring):
     decoded_string = bytestring.decode(sys.getfilesystemencoding())
@@ -496,7 +523,7 @@ def get_token(service, username, password):
     """
 
     global global_token
-    if global_token is None:
+    if True:  # global_token is None:
         if service == 'ptc':
             global_token = login_ptc(username, password)
         else:
@@ -600,49 +627,50 @@ def get_args():
     parser.set_defaults(DEBUG=True)
     return parser.parse_args()
 
-@memoize
-def login(args):
-    global global_password
-    if not global_password:
-      if args.password:
-        global_password = args.password
-      else:
-        global_password = getpass.getpass()
+class connection:
+    @memoized
+    def login(self, args):
+        global global_password
+        if not global_password:
+          if args.password:
+            global_password = args.password
+          else:
+            global_password = getpass.getpass()
 
-    access_token = get_token(args.auth_service, args.username, global_password)
-    if access_token is None:
-        raise Exception('[-] Wrong username/password')
+        access_token = get_token(args.auth_service, args.username, global_password)
+        if access_token is None:
+            raise Exception('[-] Wrong username/password')
 
-    print '[+] RPC Session Token: {} ...'.format(access_token[:25])
+        print '[+] RPC Session Token: {} ...'.format(access_token[:25])
 
-    api_endpoint = get_api_endpoint(args.auth_service, access_token)
-    if api_endpoint is None:
-        raise Exception('[-] RPC server offline')
+        api_endpoint = get_api_endpoint(args.auth_service, access_token)
+        if api_endpoint is None:
+            raise Exception('[-] RPC server offline')
 
-    print '[+] Received API endpoint: {}'.format(api_endpoint)
+        print '[+] Received API endpoint: {}'.format(api_endpoint)
 
-    profile_response = retrying_get_profile(args.auth_service, access_token,
-                                            api_endpoint, None)
-    if profile_response is None or not profile_response.payload:
-        raise Exception('Could not get profile')
+        profile_response = retrying_get_profile(args.auth_service, access_token,
+                                                api_endpoint, None)
+        if profile_response is None or not profile_response.payload:
+            raise Exception('Could not get profile')
 
-    print '[+] Login successful'
+        print '[+] Login successful'
 
-    payload = profile_response.payload[0]
-    profile = pokemon_pb2.ResponseEnvelop.ProfilePayload()
-    profile.ParseFromString(payload)
-    print '[+] Username: {}'.format(profile.profile.username)
+        payload = profile_response.payload[0]
+        profile = pokemon_pb2.ResponseEnvelop.ProfilePayload()
+        profile.ParseFromString(payload)
+        print '[+] Username: {}'.format(profile.profile.username)
 
-    creation_time = \
-        datetime.fromtimestamp(int(profile.profile.creation_time)
-                               / 1000)
-    print '[+] You started playing Pokemon Go on: {}'.format(
-        creation_time.strftime('%Y-%m-%d %H:%M:%S'))
+        creation_time = \
+            datetime.fromtimestamp(int(profile.profile.creation_time)
+                                   / 1000)
+        print '[+] You started playing Pokemon Go on: {}'.format(
+            creation_time.strftime('%Y-%m-%d %H:%M:%S'))
 
-    for curr in profile.profile.currency:
-        print '[+] {}: {}'.format(curr.type, curr.amount)
+        for curr in profile.profile.currency:
+            print '[+] {}: {}'.format(curr.type, curr.amount)
 
-    return api_endpoint, access_token, profile_response
+        return api_endpoint, access_token, profile_response
 
 def main():
     full_path = os.path.realpath(__file__)
@@ -676,6 +704,16 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
+    global api_last_response
+
+    if datetime.now() - api_last_response > max_idle_time:
+        print 'resetting connection...'
+        connection.login.reset()
+        time.sleep(wait_to_reconnect)
+        global api_endpoint, access_token, profile_response
+        api_endpoint, access_token, profile_response = connection.login(args)
+        api_last_response = datetime.now()
+
     clear_stale_pokemons()
 
     steplimit = int(args.step_limit)
@@ -706,7 +744,6 @@ def main():
     dy = -1
     steplimit2 = steplimit**2
     for step in range(steplimit2):
-        api_endpoint, access_token, profile_response = login(args)
         #starting at 0 index
         debug('looping: step {} of {}'.format((step+1), steplimit**2))
         #debug('steplimit: {} x: {} y: {} pos: {} dx: {} dy {}'.format(steplimit2, x, y, pos, dx, dy))
@@ -848,6 +885,9 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             spotted_pokemon[poke.SpawnPointId] = {'disappear_datetime': disappear_datetime, 'pokename': pokename}
 
         # print(r.status_code, r.reason)
+
+        global api_last_response
+        api_last_response = datetime.now()
 
         pokemons[poke.SpawnPointId] = {
             "lat": poke.Latitude,
