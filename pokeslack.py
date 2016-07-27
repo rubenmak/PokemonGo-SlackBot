@@ -676,8 +676,6 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
-    api_endpoint, access_token, profile_response = login(args)
-
     clear_stale_pokemons()
 
     steplimit = int(args.step_limit)
@@ -708,6 +706,7 @@ def main():
     dy = -1
     steplimit2 = steplimit**2
     for step in range(steplimit2):
+        api_endpoint, access_token, profile_response = login(args)
         #starting at 0 index
         debug('looping: step {} of {}'.format((step+1), steplimit**2))
         #debug('steplimit: {} x: {} y: {} pos: {} dx: {} dy {}'.format(steplimit2, x, y, pos, dx, dy))
