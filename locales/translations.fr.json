@@ -1,0 +1,13 @@
+{
+  "spotted_pokemon": "Je suis à <https://pokevision.com/#/@#{latitude},#{longitude}|#{distance} m> #{direction} jusqu'à #{disappear_time} (#{disappear_minutes}m#{disappear_seconds}s)!",
+  "directions": {
+    "north": "au nord",
+    "norteast": "au nord-est",
+    "east": "à l'est",
+    "southeast": "au sud-est",
+    "south": "au sud",
+    "southwest": "au sud-ouest",
+    "west": "à l'ouest",
+    "northwest": "au nord-ouest"
+  }
+}

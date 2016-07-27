@@ -21,6 +21,7 @@ import pokemon_pb2
 import time
 import httplib
 import urllib
+import types
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
@@ -215,6 +216,27 @@ def f2h(float):
 
 def h2f(hex):
     return struct.unpack('<d', struct.pack('<Q', int(hex, 16)))[0]
+
+
+def strtr(s, repl):
+  pattern = '|'.join(map(re.escape, sorted(repl, key=len, reverse=True)))
+  return re.sub(pattern, lambda m: repl[m.group()], s)
+
+
+def merge(x,y):
+    # store a copy of x, but overwrite with y's values where applicable
+    merged = dict(x,**y)
+
+    xkeys = x.keys()
+
+    # if the value of merged[key] was overwritten with y[key]'s value
+    # then we need to put back any missing x[key] values
+    for key in xkeys:
+        # if this key is a dictionary, recurse
+        if type(x[key]) is types.DictType and y.has_key(key):
+            merged[key] = merge(x[key],y[key])
+
+    return merged
 
 
 def retrying_set_location(location_name):
@@ -657,6 +679,12 @@ def main():
     print('[+] Locale is ' + args.locale)
     pokemonsJSON = json.load(
         codecs.open(path + '/locales/pokemon.' + args.locale + '.json', "r", 'UTF-8'))
+    translationsJSON = json.load(
+        codecs.open(path + '/locales/translations.en.json', "r", 'UTF-8'))
+    if os.path.isfile(path + '/locales/translations.' + args.locale + '.json'):
+        overrideTranslationsJSON = json.load(
+            codecs.open(path + '/locales/translations.' + args.locale + '.json', "r", 'UTF-8'));
+        translationsJSON = merge(translationsJSON, overrideTranslationsJSON)
 
     if args.debug:
         global DEBUG
@@ -720,7 +748,7 @@ def main():
         (x, y) = (x + dx, y + dy)
 
         process_step(args, api_endpoint, access_token, profile_response,
-                     pokemonsJSON, ignore, only)
+                     pokemonsJSON, translationsJSON, ignore, only)
 
         print('Completed: ' + str(
             ((step+1) + pos * .25 - .25) / (steplimit2) * 100) + '%')
@@ -739,7 +767,7 @@ def main():
 
 
 def process_step(args, api_endpoint, access_token, profile_response,
-                 pokemonsJSON, ignore, only):
+                 pokemonsJSON, translationsJSON, ignore, only):
     print('[+] Searching for Pokemon at location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
     origin = LatLng.from_degrees(FLOAT_LAT, FLOAT_LONG)
     step_lat = FLOAT_LAT
@@ -825,17 +853,21 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             disappear_seconds = str(disappear_seconds)
             if len(disappear_seconds) == 1:
                 disappear_seconds = str(0) + disappear_seconds
-            disappear_time = disappear_datetime.strftime("%H:%M:%S")
+            disappear_time = disappear_datetime.strftime(translationsJSON['time_format'])
 
             # calculate direction of Pokemon in bearing degrees
             direction = bearing_degrees(origin_lat, origin_lon, poke.Latitude, poke.Longitude)
             # transform in compass direction
             direction = bearing_degrees_to_compass_direction(direction)
 
-            alert_text = 'I\'m just <https://pokevision.com/#/@' + str(poke.Latitude) + ',' + str(poke.Longitude) + \
-                         '|' + "{0:.2f}".format(distance) + \
-                         ' m> ' + direction + ' until ' + disappear_time + \
-                         ' (' + disappear_minutes + ':' + disappear_seconds + ')!'
+            alert_text = strtr(translationsJSON['spotted_pokemon'], {
+                '#{latitude}': str(poke.Latitude),
+                '#{longitude}': str(poke.Longitude),
+                '#{distance}': "{0:.2f}".format(distance),
+                '#{direction}': translationsJSON['directions'][direction],
+                '#{disappear_time}': disappear_time,
+                '#{disappear_minutes}': disappear_minutes,
+                '#{disappear_seconds}': disappear_seconds})
 
             if pokemon_icons_prefix != ':pokeball:':
                 user_icon = pokemon_icons_prefix + pokename.lower() + ':'
