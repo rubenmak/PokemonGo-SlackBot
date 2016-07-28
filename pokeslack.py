@@ -607,6 +607,11 @@ def get_args():
         help="Locale for Pokemon names: default en, check locale folder for more options",
         default="en")
     parser.add_argument(
+        "-iL",
+        "--icon-locale",
+        help="Locale for Pokemon icons: default en, check locale folder for more options",
+        default="en")
+    parser.add_argument(
         "-ol",
         "--onlylure",
         help='Display only lured pokéstop',
@@ -682,9 +687,11 @@ def main():
         print '[!] Invalid Auth service specified'
         return
 
-    print('[+] Locale is ' + args.locale)
+    print('[+] Locale is ' + args.locale + ' and icon locale is ' + args.icon_locale)
     pokemonsJSON = json.load(
         codecs.open(path + '/locales/pokemon.' + args.locale + '.json', "r", 'UTF-8'))
+    pokemonsJSON_icons = json.load(
+        codecs.open(path + '/locales/pokemon.' + args.icon_locale + '.json', "r", 'UTF-8'))
 
     if args.debug:
         global DEBUG
@@ -756,7 +763,7 @@ def main():
         (x, y) = (x + dx, y + dy)
 
         process_step(args, api_endpoint, access_token, profile_response,
-                     pokemonsJSON, ignore, only)
+                     pokemonsJSON, pokemonsJSON_icons, ignore, only)
 
         print('Completed: ' + str(
             ((step+1) + pos * .25 - .25) / (steplimit2) * 100) + '%')
@@ -775,7 +782,7 @@ def main():
 
 
 def process_step(args, api_endpoint, access_token, profile_response,
-                 pokemonsJSON, ignore, only):
+                 pokemonsJSON, pokemonsJSON_icons, ignore, only):
     print('[+] Searching for Pokemon at location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
     origin = LatLng.from_degrees(FLOAT_LAT, FLOAT_LONG)
     step_lat = FLOAT_LAT
@@ -830,6 +837,7 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
     for poke in visible:
         pokeid = str(poke.pokemon.PokemonId)
         pokename = pokemonsJSON[pokeid]
+        pokename_icon = pokemonsJSON_icons[pokeid]
         if args.ignore:
             if pokename.lower() in ignore or pokeid in ignore:
                 continue
@@ -874,7 +882,7 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                          ' (' + disappear_minutes + ':' + disappear_seconds + ')!'
 
             if pokemon_icons_prefix != ':pokeball:':
-                user_icon = pokemon_icons_prefix + pokename.lower() + ':'
+                user_icon = pokemon_icons_prefix + pokename_icon.lower() + ':'
             else:
                 user_icon = ':pokeball:'
 
