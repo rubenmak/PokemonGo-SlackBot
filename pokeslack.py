@@ -85,8 +85,9 @@ is_ampm_clock = False
 
 spotted_pokemon = {}
 max_idle_time = timedelta(seconds=300)
-api_last_response = datetime.now() - 2 * max_idle_time
+api_last_response = datetime.now()
 wait_to_reconnect = 60
+first_connection = True
 
 # stuff for in-background search thread
 
@@ -741,10 +742,15 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
-    global api_last_response
+    global api_last_response, first_connection
 
-    if datetime.now() - api_last_response > max_idle_time:
-        print '[!] resetting connection...'
+    if first_connection:
+        print '[+] Connecting'
+        global api_endpoint, access_token, profile_response
+        api_endpoint, access_token, profile_response = connection.login(args)
+        api_last_response = datetime.now()
+    elif datetime.now() - api_last_response > max_idle_time:
+        print '[!] Resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
         global api_endpoint, access_token, profile_response
