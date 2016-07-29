@@ -714,7 +714,7 @@ def main():
     global api_last_response
 
     if datetime.now() - api_last_response > max_idle_time:
-        print 'resetting connection...'
+        print '[!] resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
         global api_endpoint, access_token, profile_response
