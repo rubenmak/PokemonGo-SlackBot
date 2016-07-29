@@ -1,0 +1,14 @@
+{
+  "spotted_pokemon": "I'm just <https://pokevision.com/#/@#{latitude},#{longitude}|#{distance} m> #{direction} until #{disappear_time} (#{disappear_minutes}:#{disappear_seconds})!",
+  "time_format": "%H:%M:%S",
+  "directions": {
+    "north": "north",
+    "norteast": "northeast",
+    "east": "east",
+    "southeast": "southeast",
+    "south": "south",
+    "southwest": "southwest",
+    "west": "west",
+    "northwest": "northwest"
+  }
+}
