@@ -666,20 +666,20 @@ class connection:
 
         access_token = get_token(args.auth_service, args.username, global_password)
         if access_token is None:
-            raise Exception('[-] Wrong username/password')
+            print '[-] access_token is None: wrong username/password?'
 
         print '[+] RPC Session Token: {} ...'.format(access_token[:25])
 
         api_endpoint = get_api_endpoint(args.auth_service, access_token)
         if api_endpoint is None:
-            raise Exception('[-] RPC server offline')
+            print '[-] RPC server offline'
 
         print '[+] Received API endpoint: {}'.format(api_endpoint)
 
         profile_response = retrying_get_profile(args.auth_service, access_token,
                                                 api_endpoint, None)
         if profile_response is None or not profile_response.payload:
-            raise Exception('Could not get profile')
+            print 'Could not get profile'
 
         print '[+] Login successful'
 
