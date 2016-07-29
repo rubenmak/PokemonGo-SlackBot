@@ -2,7 +2,7 @@
   "spotted_pokemon": "Ich bin <https://pokevision.com/#/@#{latitude},#{longitude}|#{distance} m> #{direction} bis #{disappear_time} (#{disappear_minutes}:#{disappear_seconds})!",
   "directions": {
     "north": "Norden",
-    "norteast": "Nord-Ost",
+    "northeast": "Nord-Ost",
     "east": "Osten",
     "southeast": "Süd-Ost",
     "south": "Süden",

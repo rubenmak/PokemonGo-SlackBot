@@ -3,7 +3,7 @@
   "time_format": "%H:%M:%S",
   "directions": {
     "north": "north",
-    "norteast": "northeast",
+    "northeast": "northeast",
     "east": "east",
     "southeast": "southeast",
     "south": "south",
