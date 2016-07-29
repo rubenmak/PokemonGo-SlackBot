@@ -570,9 +570,9 @@ def send_to_slack(text, username, icon_emoji, webhook):
 
     h.request('POST', webhook, data, headers)
     r = h.getresponse()
-    ack = r.read()
-    #print data
-    #print ack
+    # ack = r.read()
+    # print data
+    # print ack
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -746,14 +746,12 @@ def main():
 
     if first_connection:
         print '[+] Connecting'
-        global api_endpoint, access_token, profile_response
         api_endpoint, access_token, profile_response = connection.login(args)
         api_last_response = datetime.now()
     elif datetime.now() - api_last_response > max_idle_time:
         print '[!] Resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
-        global api_endpoint, access_token, profile_response
         api_endpoint, access_token, profile_response = connection.login(args)
         api_last_response = datetime.now()
 
