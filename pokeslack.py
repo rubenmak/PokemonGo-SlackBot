@@ -22,6 +22,7 @@ import time
 import httplib
 import urllib
 import types
+import numpy as np
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
@@ -34,6 +35,7 @@ from requests.adapters import ConnectionError
 from requests.models import InvalidURL
 from transform import *
 from math import radians, cos, sin, asin, sqrt
+from argparse import Namespace
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -843,10 +845,14 @@ def process_step(args, api_endpoint, access_token, profile_response,
         try:
             for cell in hh.cells:
                 for wild in cell.WildPokemon:
-                    hash = wild.SpawnPointId;
-                    if hash not in seen.keys() or (seen[hash].TimeTillHiddenMs <= wild.TimeTillHiddenMs):
+                    hash = wild.SpawnPointId
+                    disappear_timestamp = time.time() + wild.TimeTillHiddenMs / 1000
+                    if hash not in seen.keys() or \
+                                    wild.pokemon.PokemonId != seen[hash]['PokemonId'] \
+                                    or seen[hash]['disappear_timestamp'] < disappear_timestamp - 300:
                         visible.append(wild)
-                    seen[hash] = wild.TimeTillHiddenMs
+                        seen[hash] = {'disappear_timestamp': disappear_timestamp,
+                                                              'PokemonId': wild.pokemon.PokemonId}
                 if cell.Fort:
                     for Fort in cell.Fort:
                         if Fort.Enabled == True:
@@ -857,14 +863,31 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                                 gyms[Fort.FortId] = [Fort.Team, Fort.Latitude,
                                                      Fort.Longitude, Fort.GymPoints]
 
-                            elif Fort.FortType \
-                                and args.display_pokestop:
+                            elif Fort.FortType:
                                 expire_time = 0
                                 if Fort.LureInfo.LureExpiresTimestampMs:
+                                    if Fort.LureInfo.ActivePokemonId:
+                                        hash = Fort.LureInfo.FortId
+                                        disappear_timestamp = Fort.LureInfo.LureExpiresTimestampMs / 1000
+                                        if hash not in seen.keys() \
+                                                or Fort.LureInfo.ActivePokemonId != seen[hash].PokemonId \
+                                                or seen[hash].disappear_timestamp < disappear_timestamp - 300:
+                                            lured = Namespace()
+                                            lured.lured = True
+                                            lured.pokemon = Namespace()
+                                            lured.pokemon.PokemonId = Fort.LureInfo.ActivePokemonId
+                                            lured.Latitude = Fort.Latitude + 0.00007 * np.random.normal()
+                                            lured.Longitude = Fort.Longitude + 0.00007 * np.random.normal()
+                                            lured.SpawnPointId = 'Fort_' + Fort.LureInfo.FortId
+                                            lured.TimeTillHiddenMs = Fort.LureInfo.LureExpiresTimestampMs - \
+                                                time.time() * 1000
+                                            visible.append(lured)
+                                            seen[hash] = {'disappear_timestamp': disappear_timestamp,
+                                                          'PokemonId': Fort.LureInfo.ActivePokemonId}
                                     expire_time = datetime\
                                         .fromtimestamp(Fort.LureInfo.LureExpiresTimestampMs / 1000.0)\
                                         .strftime("%H:%M:%S")
-                                if (expire_time != 0 or not args.onlylure):
+                                if args.display_pokestop and (expire_time != 0 or not args.onlylure):
                                     pokestops[Fort.FortId] = [Fort.Latitude,
                                                               Fort.Longitude, expire_time]
         except AttributeError:
@@ -874,6 +897,7 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
         pokeid = str(poke.pokemon.PokemonId)
         pokename = pokemonsJSON[pokeid]
         pokename_icon = pokemonsJSON_icons[pokeid]
+        disappear_timestamp = time.time() + poke.TimeTillHiddenMs / 1000
         if args.ignore:
             if pokename.lower() in ignore or pokeid in ignore:
                 continue
@@ -885,9 +909,6 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                 continue
         if poke.TimeTillHiddenMs < 0:
             continue
-
-        disappear_timestamp = time.time() + poke.TimeTillHiddenMs \
-            / 1000
 
         if args.china:
             (poke.Latitude, poke.Longitude) = \
@@ -926,9 +947,13 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             else:
                 user_icon = ':pokeball:'
 
-
-
-            send_to_slack(alert_text, pokename, user_icon, slack_webhook_urlpath)
+            try:
+                if poke.lured:
+                    send_to_slack(alert_text, pokename + ' (lured)', user_icon, slack_webhook_urlpath)
+                else:
+                    send_to_slack(alert_text, pokename, user_icon, slack_webhook_urlpath)
+            except:
+                send_to_slack(alert_text, pokename, user_icon, slack_webhook_urlpath)
 
             spotted_pokemon[poke.SpawnPointId] = {'disappear_datetime': disappear_datetime, 'pokename': pokename}
 
