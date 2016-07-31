@@ -90,6 +90,9 @@ max_idle_time = timedelta(seconds=300)
 api_last_response = datetime.now()
 wait_to_reconnect = 60
 first_connection = True
+api_endpoint = None
+access_token = None
+profile_response = None
 
 # stuff for in-background search thread
 
@@ -378,35 +381,48 @@ def api_req(service, api_endpoint, access_token, *args, **kwargs):
 
 def get_api_endpoint(service, access_token, api=API_URL):
     profile_response = None
-    while not profile_response:
+    attempt_get_api_endpoint = 1
+    while not profile_response and attempt_get_api_endpoint <= 5:
         profile_response = retrying_get_profile(service, access_token, api,
                                                 None)
         if not hasattr(profile_response, 'api_url'):
             debug(
-                'retrying_get_profile: get_profile returned no api_url, retrying')
+                'get_api_endpoint: retrying_get_profile: get_profile returned no api_url, retrying '
+                + str(attempt_get_api_endpoint))
             profile_response = None
+            attempt_get_api_endpoint += 1
             continue
         if not len(profile_response.api_url):
             debug(
-                'get_api_endpoint: retrying_get_profile returned no-len api_url, retrying')
+                'get_api_endpoint: retrying_get_profile returned no-len api_url, retrying'
+                + str(attempt_get_api_endpoint))
             profile_response = None
+            attempt_get_api_endpoint += 1
 
-    return 'https://%s/rpc' % profile_response.api_url
+    if profile_response:
+        api_endpoint = 'https://%s/rpc' % profile_response.api_url
+    else:
+        api_endpoint = None
+
+    return api_endpoint
 
 def retrying_get_profile(service, access_token, api, useauth, *reqq):
     profile_response = None
-    while not profile_response:
+    attempt_get_profile = 1
+    while not profile_response and attempt_get_profile <= 5:
         profile_response = get_profile(service, access_token, api, useauth,
                                        *reqq)
         if not hasattr(profile_response, 'payload'):
             debug(
-                'retrying_get_profile: get_profile returned no payload, retrying')
+                'retrying_get_profile: get_profile returned no payload, retrying ' + str(attempt_get_profile))
             profile_response = None
+            attempt_get_profile += 1
             continue
         if not profile_response.payload:
             debug(
-                'retrying_get_profile: get_profile returned no-len payload, retrying')
+                'retrying_get_profile: get_profile returned no-len payload, retrying ' + str(attempt_get_profile))
             profile_response = None
+            attempt_get_profile += 1
 
     return profile_response
 
@@ -667,22 +683,29 @@ class connection:
           else:
             global_password = getpass.getpass()
 
-        access_token = get_token(args.auth_service, args.username, global_password)
-        if access_token is None:
-            print '[-] access_token is None: wrong username/password?'
+        profile_response = None
+        while profile_response is None or not profile_response.payload:
+            access_token = get_token(args.auth_service, args.username, global_password)
+            if access_token is None:
+                print '[-] access_token is None: wrong username/password?'
+                time.sleep(wait_to_reconnect)
+                continue
 
-        print '[+] RPC Session Token: {} ...'.format(access_token[:25])
+            print '[+] RPC Session Token: {} ...'.format(access_token[:25])
 
-        api_endpoint = get_api_endpoint(args.auth_service, access_token)
-        if api_endpoint is None:
-            print '[-] RPC server offline'
+            api_endpoint = get_api_endpoint(args.auth_service, access_token)
+            if api_endpoint is None:
+                print '[-] No response from RPC server'
+                time.sleep(wait_to_reconnect)
+                continue
 
-        print '[+] Received API endpoint: {}'.format(api_endpoint)
+            print '[+] Received API endpoint: {}'.format(api_endpoint)
 
-        profile_response = retrying_get_profile(args.auth_service, access_token,
-                                                api_endpoint, None)
-        if profile_response is None or not profile_response.payload:
-            print 'Could not get profile'
+            profile_response = retrying_get_profile(args.auth_service, access_token,
+                                                    api_endpoint, None)
+            if profile_response is None or not profile_response.payload:
+                print 'Could not get profile, retrying connecting'
+                time.sleep(wait_to_reconnect)
 
         print '[+] Login successful'
 
@@ -744,13 +767,14 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
-    global api_last_response, first_connection
+    global api_last_response, first_connection, api_endpoint, access_token, profile_response
 
     if first_connection:
         print '[+] Connecting'
         api_endpoint, access_token, profile_response = connection.login(args)
         api_last_response = datetime.now()
-    elif datetime.now() - api_last_response > max_idle_time:
+        first_connection = False
+    elif datetime.now() - api_last_response > max_idle_time and args.auth_service == 'google':
         print '[!] Resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
