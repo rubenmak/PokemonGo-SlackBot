@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2737b880-c580-4628-a525-ea2a60fe97cc" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/requirements.txt" afterPath="$PROJECT_DIR$/requirements.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/locales/translations.de.json" afterPath="$PROJECT_DIR$/locales/translations.de.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/locales/translations.en.json" afterPath="$PROJECT_DIR$/locales/translations.en.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/locales/translations.fr.json" afterPath="$PROJECT_DIR$/locales/translations.fr.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pokeslack.py" afterPath="$PROJECT_DIR$/pokeslack.py" />
     </list>
     <ignored path="PokemonGo-SlackBot.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -23,14 +25,44 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="pokeslack.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pokeslack.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pokeslack.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="605">
-              <caret line="961" column="52" selection-start-line="961" selection-start-column="52" selection-end-line="961" selection-end-column="52" />
+            <state relative-caret-position="364">
+              <caret line="968" column="43" selection-start-line="968" selection-start-column="43" selection-end-line="968" selection-end-column="43" />
               <folding>
                 <element signature="e#43#55#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="translations.de.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/locales/translations.de.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="18">
+              <caret line="1" column="247" selection-start-line="1" selection-start-column="247" selection-end-line="1" selection-end-column="247" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="translations.en.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/locales/translations.en.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="36">
+              <caret line="2" column="2" selection-start-line="1" selection-start-column="21" selection-end-line="2" selection-end-column="2" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="translations.fr.json" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/locales/translations.fr.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="18">
+              <caret line="1" column="256" selection-start-line="1" selection-start-column="256" selection-end-line="1" selection-end-column="256" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -63,11 +95,11 @@
         <option value="$PROJECT_DIR$/locales/pokemon.en.json" />
         <option value="$PROJECT_DIR$/pokehomey.py" />
         <option value="$PROJECT_DIR$/credentials.json" />
-        <option value="$PROJECT_DIR$/locales/translations.fr.json" />
-        <option value="$PROJECT_DIR$/locales/translations.de.json" />
-        <option value="$PROJECT_DIR$/locales/translations.en.json" />
-        <option value="$PROJECT_DIR$/pokeslack.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/pokeslack.py" />
+        <option value="$PROJECT_DIR$/locales/translations.en.json" />
+        <option value="$PROJECT_DIR$/locales/translations.de.json" />
+        <option value="$PROJECT_DIR$/locales/translations.fr.json" />
       </list>
     </option>
   </component>
@@ -381,6 +413,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -388,6 +421,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -395,6 +429,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -494,27 +529,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/locales/translations.de.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/locales/translations.en.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="10" selection-start-line="5" selection-start-column="10" selection-end-line="5" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/locales/translations.fr.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="10" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/requirements.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
@@ -525,11 +539,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pokeslack.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="605">
-          <caret line="961" column="52" selection-start-line="961" selection-start-column="52" selection-end-line="961" selection-end-column="52" />
+        <state relative-caret-position="364">
+          <caret line="968" column="43" selection-start-line="968" selection-start-column="43" selection-end-line="968" selection-end-column="43" />
           <folding>
             <element signature="e#43#55#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/locales/translations.en.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="2" column="2" selection-start-line="1" selection-start-column="21" selection-end-line="2" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/locales/translations.de.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="1" column="247" selection-start-line="1" selection-start-column="247" selection-end-line="1" selection-end-column="247" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/locales/translations.fr.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18">
+          <caret line="1" column="256" selection-start-line="1" selection-start-column="256" selection-end-line="1" selection-end-column="256" />
+          <folding />
         </state>
       </provider>
     </entry>

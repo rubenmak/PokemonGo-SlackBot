@@ -964,7 +964,9 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
                 '#{direction}': translationsJSON['directions'][direction],
                 '#{disappear_time}': disappear_time,
                 '#{disappear_minutes}': disappear_minutes,
-                '#{disappear_seconds}': disappear_seconds})
+                '#{disappear_seconds}': disappear_seconds,
+                '#{host}': args.host,
+                '#{port}': str(args.port)})
 
             if pokemon_icons_prefix != ':pokeball:':
                 user_icon = pokemon_icons_prefix + pokename_icon.lower() + ':'
