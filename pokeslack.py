@@ -774,7 +774,7 @@ def main():
         api_endpoint, access_token, profile_response = connection.login(args)
         api_last_response = datetime.now()
         first_connection = False
-    elif datetime.now() - api_last_response > max_idle_time and args.auth_service == 'google':
+    elif datetime.now() - api_last_response > max_idle_time:  # and args.auth_service == 'google':
         print '[!] Resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
