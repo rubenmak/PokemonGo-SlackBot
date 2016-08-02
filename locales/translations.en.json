@@ -1,5 +1,5 @@
 {
-  "spotted_pokemon": "I'm just #{distance} m #{direction} until #{disappear_time} (#{disappear_minutes}:#{disappear_seconds}), check <http://www.google.com/maps/place/#{latitude},#{longitude}|Google Maps> or <http://#{host}:#{port}|our Pokémap>!",
+  "spotted_pokemon": "#{pokename} is just #{distance} m #{direction} until #{disappear_time} (#{disappear_minutes}:#{disappear_seconds}), check <http://www.google.com/maps/place/#{latitude},#{longitude}|Google Maps> or <http://#{host}:#{port}|our Pokémap>!",
   "time_format": "%H:%M:%S",
   "directions": {
     "north": "north",

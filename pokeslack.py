@@ -774,7 +774,7 @@ def main():
         api_endpoint, access_token, profile_response = connection.login(args)
         api_last_response = datetime.now()
         first_connection = False
-    elif datetime.now() - api_last_response > max_idle_time:  # and args.auth_service == 'google':
+    elif datetime.now() - api_last_response > max_idle_time and args.auth_service == 'google':
         print '[!] Resetting connection...'
         connection.login.reset()
         time.sleep(wait_to_reconnect)
@@ -958,6 +958,7 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             direction = bearing_degrees_to_compass_direction(direction)
 
             alert_text = strtr(translationsJSON['spotted_pokemon'], {
+                '#{pokename}': pokename,
                 '#{latitude}': str(poke.Latitude),
                 '#{longitude}': str(poke.Longitude),
                 '#{distance}': "{0:.2f}".format(distance),
