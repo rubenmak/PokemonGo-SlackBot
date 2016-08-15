@@ -370,7 +370,7 @@ def api_req(service, api_endpoint, access_token, *args, **kwargs):
     if VERBOSE_DEBUG:
         print 'REQUEST:'
         print p_req
-        print 'Response:'
+        print 'RESPONSE:'
         print p_ret
         print '''
 
