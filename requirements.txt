@@ -1,6 +1,6 @@
 geopy==1.11.0
 protobuf==3.15.0
-requests==2.10.0
+requests==2.20.0
 flask-googlemaps==0.2.0
 s2sphere==0.2.4
 flask==1.0
