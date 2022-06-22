@@ -7,4 +7,4 @@ flask==1.0
 gpsoauth==0.3.0
 coveralls==1.1
 werkzeug==0.15.3
-numpy==1.21.0
+numpy==1.22.0
